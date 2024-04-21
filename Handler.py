@@ -1,5 +1,5 @@
-from Queue import Queue
-from DataFrame import DataFrame
+from queue import Queue  # Mudei de 'Queue' para 'queue'
+from DataFrame import DataFrame  # Mantive a importação da classe DataFrame
 
 class Handler:
     def __init__(self, inputQueues: list):
@@ -9,10 +9,10 @@ class Handler:
     def handle(self):
         for i, queue in enumerate(self.inputQueues):
             output_queue = Queue()
-            while not queue.is_empty():
-                dataframe = queue.dequeue()
+            while not queue.empty():  # Mudei de 'is_empty' para 'empty'
+                dataframe = queue.get()  # Mudei de 'dequeue' para 'get'
                 processeddataframe = self.process(dataframe)
-                output_queue.enqueue(processeddataframe)
+                output_queue.put(processeddataframe)  # Mudei de 'enqueue' para 'put'
             self.outputQueues[i] = output_queue
 
     def process(self, dataframe: DataFrame):
@@ -22,10 +22,10 @@ class Handler:
 class TratadorLimpezaCSV(Handler):
     def process(self, dataframe: DataFrame) -> DataFrame:
         cleaneddata = []
-        for row in dataframe._data:
+        for row in dataframe.values:  # Mudei de 'dataframe._data' para 'dataframe.values'
             cleaned_row = [self.clean_value(value) for value in row]
             cleaneddata.append(cleaned_row)
-        return DataFrame(cleaneddata, columns=dataframe._columns)
+        return DataFrame(dict(zip(dataframe.columns, zip(*cleaneddata))))
 
     def clean_value(self, value):
         value = self.convert_to_int(value)
@@ -39,7 +39,6 @@ class TratadorLimpezaCSV(Handler):
         return text.replace('.', ',')
 
     def remove_accent(self, text):
-        # Dicionário de mapeamento de caracteres acentuados para seus equivalentes sem acentos
         accent_table = {
             'á': 'a', 'à': 'a', 'ã': 'a', 'â': 'a',
             'é': 'e', 'ê': 'e', 'í': 'i', 'ó': 'o',
@@ -49,8 +48,6 @@ class TratadorLimpezaCSV(Handler):
             'Í': 'I', 'Ó': 'O', 'Õ': 'O', 'Ô': 'O',
             'Ú': 'U', 'Ü': 'U', 'Ç': 'C', 'Ñ': 'N'
         }
-
-        # Aplicando o mapeamento de caracteres
         text_without_accent = ''.join(accent_table.get(char, char) for char in text)
         return text_without_accent
     
@@ -67,10 +64,9 @@ class TratadorFiltroNomeCodigo(Handler):
         self.nome_coluna = nome_coluna
 
     def process(self, dataframe: DataFrame) -> DataFrame:
-        col_index = dataframe._columns.index(self.nome_coluna)
-        filtered_rows = [row for row in dataframe._data if row[col_index] == self.termo_pesquisa]
-        return DataFrame(filtered_rows, columns=dataframe._columns)
-
+        col_index = list(dataframe.columns).index(self.nome_coluna)  # Mudei de 'dataframe._columns' para 'dataframe.columns'
+        filtered_rows = [row for row in dataframe.values if row[col_index] == self.termo_pesquisa]  # Mudei de 'dataframe._data' para 'dataframe.values'
+        return DataFrame(dict(zip(dataframe.columns, zip(*filtered_rows))))
 
 class TratadorMerge(Handler):
     def __init__(self, input_queues: list, chave_merge: str):
@@ -78,45 +74,47 @@ class TratadorMerge(Handler):
         self.chave_merge = chave_merge
 
     def process(self, dataframe: DataFrame) -> DataFrame:
-        # Inicializa um dicionário vazio para armazenar as linhas mescladas por ID
         merged_data = {}
         
-        # Itera sobre cada fila de entrada
         for i, queue in enumerate(self.inputQueues):
-            while not queue.is_empty():
-                df = queue.dequeue()
-                for row in df._data:
-                    # Obtém o valor da chave para mesclar
+            while not queue.empty():
+                df = queue.get()
+                for row in df.values:
                     if isinstance(row, dict):
                         chave = row.get(self.chave_merge)
                     else:
-                        chave = row[dataframe._columns.index(self.chave_merge)]
-                    
-                    # Verifica se a chave já existe no dicionário
+                        chave = row[list(dataframe.columns).index(self.chave_merge)]  # Mudei de 'dataframe._columns' para 'dataframe.columns'
                     if chave in merged_data:
-                        # Se a chave já existe, adiciona a linha atual aos dados mesclados
                         merged_data[chave].append(row)
                     else:
-                        # Se a chave não existe, cria uma nova entrada no dicionário
                         merged_data[chave] = [row]
 
-        # Inicializa uma lista para armazenar os DataFrames mesclados
         merged_dfs = []
         
-        # Converte os dados mesclados em DataFrames e os adiciona à lista
         for chave, linhas in merged_data.items():
-            merged_df = DataFrame(linhas, columns=dataframe._columns)
+            merged_df = DataFrame(dict(zip(dataframe.columns, zip(*linhas))))
             merged_dfs.append(merged_df)
         
-        # Retorna a lista de DataFrames mesclados
         return merged_dfs
+
+#Tratador que soma os valores de uma coluna específica
+class TratadorSoma(Handler):
+    def __init__(self, input_queues: list, coluna_soma: str):
+        super().__init__(input_queues)
+        self.coluna_soma = coluna_soma
+
+    def process(self, dataframe: DataFrame) -> DataFrame:
+        col_index = list(dataframe.columns).index(self.coluna_soma)  # Mudei de 'dataframe._columns' para 'dataframe.columns'
+        soma = sum([row[col_index] for row in dataframe.values])  # Mudei de 'dataframe._data' para 'dataframe.values'
+        return soma
+
 
 # Exemplo de uso:
 
 # Criar filas de entrada
 input_queue = Queue()
 input_queue2 = Queue()
-output_queue = Queue()
+input_queues = [input_queue, input_queue2]
 
 data1 = [
     ["01-01-2023", 1, "YOUTUBE", 5000],
@@ -165,47 +163,96 @@ data2 = [
     ["01-07-2024", 4, "RÁDIOS AM/FM", 7250.15],
     ["01-07-2024", 5, "SHOW AO VIVO", 10600.20]
 ]
-# Criando uma instância da classe DataFrame com os dados de teste
-df = DataFrame(data1[:12], columns = ["Data", "Código Artista", "Fonte", "Valor"])
-df2 = DataFrame(data1[12:], columns = ["Data", "Código Artista", "Fonte", "Valor"])
-df3 = DataFrame(data2[:17], columns = ["Data", "Código Artista", "Fonte", "Valor"])
-df4 = DataFrame(data2[17:], columns = ["Data", "Código Artista", "Fonte", "Valor"])
-# Adicionar DataFrame à fila de entrada
-input_queue.enqueue(df)
-input_queue.enqueue(df2)
-input_queue2.enqueue(df3)
-input_queue2.enqueue(df4)
 
-input_queues = [input_queue, input_queue2]
+# Criando listas para cada coluna
+datas1 = []
+codigos_artistas1 = []
+fontes1 = []
+valores1 = []
+# Separando os dados em listas de cada coluna
+for linha in data1:
+    datas1.append(linha[0])
+    codigos_artistas1.append(linha[1])
+    fontes1.append(linha[2])
+    valores1.append(linha[3])
+
+# Criando listas para cada coluna
+datas2 = []
+codigos_artistas2 = []
+fontes2 = []
+valores2 = []
+# Separando os dados em listas de cada coluna
+for linha in data2:
+    datas2.append(linha[0])
+    codigos_artistas2.append(linha[1])
+    fontes2.append(linha[2])
+    valores2.append(linha[3])
+
+
+# Criar DataFrame de exemplo
+df = DataFrame({
+    "Data": datas1[:12],
+    "Código Artista": codigos_artistas1[:12],
+    "Fonte": fontes1[:12],
+    "Valor": valores1[:12]
+})
+df2 = DataFrame({
+    "Data": datas1[12:],
+    "Código Artista": codigos_artistas1[12:],
+    "Fonte": fontes1[12:],
+    "Valor": valores1[12:]
+})
+df3 = DataFrame({
+    "Data": datas2[:17],
+    "Código Artista": codigos_artistas2[:17],
+    "Fonte": fontes2[:17],
+    "Valor": valores2[:17]
+})
+df4 = DataFrame({
+    "Data": datas2[17:],
+    "Código Artista": codigos_artistas2[17:],
+    "Fonte": fontes2[17:],
+    "Valor": valores2[17:]
+})
+
+print("DataFrame original:")
+print(df3)
+# Adicionar DataFrame à fila de entrada
+input_queue.put(df)
+input_queue.put(df2)
+input_queue2.put(df3)
+input_queue2.put(df4)
 
 # Instanciar e usar tratador de limpeza CSV
 tratador_limpeza_csv = TratadorLimpezaCSV(input_queues)
 tratador_limpeza_csv.handle()
-df_limpo = tratador_limpeza_csv.outputQueues[0]
-df_limpo2 = tratador_limpeza_csv.outputQueues[1]
+df_limpo = tratador_limpeza_csv.outputQueues[0].get()  # Mudei de 'peek' para 'get'
+df_limpo2 = tratador_limpeza_csv.outputQueues[1].get()  # Mudei de 'peek' para 'get'
 print("DataFrame limpo:")
-print(df_limpo2.peek())
-
+print(df_limpo2)
 
 # Instanciar e usar tratador de filtro por nome e código
 tratador_filtro_nome_codigo = TratadorFiltroNomeCodigo(tratador_limpeza_csv.outputQueues, 3, "Código Artista")
 tratador_filtro_nome_codigo.handle()
-df_filtrado = tratador_filtro_nome_codigo.outputQueues[0].peek()
+df_filtrado = tratador_filtro_nome_codigo.outputQueues[0].get() # Mudei de 'peek' para 'get'
 # Imprimir DataFrame filtrado
 print("DataFrame filtrado:")
 print(df_filtrado)
 
-input_queue.enqueue(df)
-input_queue.enqueue(df2)
-input_queue2.enqueue(df3)
-input_queue2.enqueue(df4)
+# Adicionar DataFrame à fila de entrada novamente
+input_queue.put(df)
+input_queue.put(df2)
+input_queue2.put(df3)
+input_queue2.put(df4)
 input_queues = [input_queue, input_queue2]
+
 # Instanciar e usar tratador de merge
 tratador_merge = TratadorMerge(input_queues, "Código Artista")
 tratador_merge.handle()
-df_mesclado = tratador_merge.outputQueues[0].peek()[0]
+df_mesclado = tratador_merge.outputQueues[0].get()[0]
 # Imprimir DataFrame mesclado
 print("DataFrame mesclado:")
 print(df_mesclado)
 
 print(df2)
+
