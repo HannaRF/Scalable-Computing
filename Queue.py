@@ -1,27 +1,53 @@
+import threading
+
 class Queue:
     def __init__(self):
-        self.items = []
+        self.queue = []
+        self.head = 0  # aponta para o primeiro elemento válido da fila
+        self.tail = 0  # aponta para a próxima posição livre para inserção
+        self.count = 0  # num de elementos na fila
+        self.lock = threading.Lock()
 
-    def is_empty(self):
-        return len(self.items) == 0
-
-    def enqueue(self, item):
-        self.items.append(item)
+    def enqueue(self, dataframe):
+        with self.lock:
+            if self.tail == len(self.queue):
+                self.queue.append(dataframe)  # adiciona no espaço livre ou expande a lista
+            else:
+                self.queue[self.tail] = dataframe  # reutiliza um espaço já liberado
+            self.tail += 1
+            self.count += 1
 
     def dequeue(self):
-        if not self.is_empty():
-            return self.items.pop(0)
-        else:
-            raise IndexError("A fila está vazia")
+        with self.lock:
+            if self.count == 0:
+                return None
+            result = self.queue[self.head]
+            self.head += 1
+            self.count -= 1
+            # reajuste para economizar espaço quando muitos elementos forem removidos
+            if self.head > 50 and self.head > 2 * self.count:
+                self.queue = self.queue[self.head:self.tail]
+                self.tail -= self.head
+                self.head = 0
+            return result
 
-    def peek(self):
-        if not self.is_empty():
-            return self.items[0]
-        else:
-            raise IndexError("A fila está vazia")
+    def is_empty(self):
+        with self.lock:
+            return self.count == 0
 
     def size(self):
-        return len(self.items)
+        with self.lock:
+            return self.count
+
+    def __str__(self):
+        with self.lock:
+            return str(self.queue[self.head:self.tail])
+    
+    def peek(self):
+        with self.lock:
+            if self.count == 0:
+                return None
+            return self.queue[self.head]
 
 # # Criando uma fila vazia
 # fila = Queue()
