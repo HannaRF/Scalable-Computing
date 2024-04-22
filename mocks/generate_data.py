@@ -162,7 +162,7 @@ def generate_royalties_data(cursor: sqlite3.Cursor):
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
     df.to_csv(f'mocks/csvs/royalties_{code}.csv', index=False)
 
-def generate_followers_data():
+def generate_followers_data(cursor: sqlite3.Cursor):
 
     codes_list = get_artist_code(cursor)
 
@@ -190,3 +190,9 @@ def generate_followers_data():
 # for i in range(10):
 #     generate_royalties_data(cursor)
 # cursor.connection.close()
+
+cursor = connect()
+dict_followers_data = generate_followers_data(cursor)
+cursor.connection.close()
+
+print(dict_followers_data)
