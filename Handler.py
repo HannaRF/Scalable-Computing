@@ -104,23 +104,21 @@ class TratadorSomaValoresPorFila(Handler):
         self.coluna = coluna
 
     def handle(self):
-        output_queues = []
-        for input_queue in self.inputQueues:
+        for i, input_queue in enumerate(self.inputQueues):
             total_sum = 0
             while not input_queue.is_empty():
                 df = input_queue.dequeue()
-                col_values = df.get_column(self.coluna)  # Obtendo os valores da coluna especificada
-                total_sum += sum(col_values)  # Somando os valores da coluna especificada
-            output_queue = Queue()
-            output_queue.enqueue(DataFrame({"Queue_Total_Sum": [total_sum]}))
-            output_queues.append(output_queue)
-        return output_queues
+                col_values = df.get_column(self.coluna)  
+                total_sum += sum(col_values)  
+            self.outputQueues[i].enqueue(DataFrame({"Queue_Total_Sum": [total_sum]}))
+
 
 
 
 class TratadorSomaTotalEntreFilas(Handler):
     def __init__(self, inputQueues):
         super().__init__(inputQueues)
+        self.outputQueues = [Queue() for _ in inputQueues]
 
     def handle(self):
         total_sum = 0
@@ -133,7 +131,7 @@ class TratadorSomaTotalEntreFilas(Handler):
         
         output_queues = []
         for i, fila in enumerate(self.inputQueues):
-            output_queue = Queue()
+            output_queue = self.outputQueues[i]  # Utilizando o atributo de outputQueue da classe
             if i == 0:
                 output_queue.enqueue(DataFrame({"Total_Total_sum": [total_sum]}))
             else:
@@ -145,39 +143,100 @@ class TratadorSomaTotalEntreFilas(Handler):
 
 
 
-class TratadorMergeDataFrames(Handler):
-    def __init__(self, inputQueues, on, how='inner'):
-        super().__init__(inputQueues)
-        self.on = on
-        self.how = how
 
+# class TratadorMergeDataFrames(Handler):
+#     def __init__(self, inputQueues, on, how='inner'):
+#         super().__init__(inputQueues)
+#         self.on = on
+#         self.how = how
+
+#     def handle(self):
+#         # Unifica todos os DataFrames de cada fila em um único DataFrame maior
+#         merged_dataframes = [self._merge_dataframes(queue) for queue in self.inputQueues if not queue.is_empty()]
+
+#         # Verifica se há DataFrames para mesclar
+#         if not merged_dataframes:
+#             return []
+
+#         # Faz o merge entre todos os DataFrames
+#         final_merged_df = merged_dataframes[0]
+#         for df in merged_dataframes[1:]:
+#             final_merged_df = self._merge_dataframes(final_merged_df, df, self.on, self.how)
+
+#         # Retorna o DataFrame resultante do merge
+#         return [final_merged_df]
+
+#     def _merge_dataframes(self, queue):
+#         merged_data = {}
+#         while not queue.is_empty():
+#             df = queue.dequeue()
+#             for col in df.columns:
+#                 if col not in merged_data:
+#                     merged_data[col] = []
+#                 merged_data[col].extend(df.get_column(col))
+#         if not merged_data:
+#             return DataFrame({})
+#         return DataFrame(merged_data)
+
+
+class TratadorUnificarDataFrames(Handler):
     def handle(self):
-        # Unifica todos os DataFrames de cada fila em um único DataFrame maior
-        merged_dataframes = [self._merge_dataframes(queue) for queue in self.inputQueues if not queue.is_empty()]
+        for i, input_queue in enumerate(self.inputQueues):
+            unified_dataframe = self._unify_dataframes(input_queue)
+            self.outputQueues[i].enqueue(unified_dataframe)
 
-        # Verifica se há DataFrames para mesclar
-        if not merged_dataframes:
-            return []
 
-        # Faz o merge entre todos os DataFrames
-        final_merged_df = merged_dataframes[0]
-        for df in merged_dataframes[1:]:
-            final_merged_df = self._merge_dataframes(final_merged_df, df, self.on, self.how)
-
-        # Retorna o DataFrame resultante do merge
-        return [final_merged_df]
-
-    def _merge_dataframes(self, queue):
-        merged_data = {}
+    def _unify_dataframes(self, queue):
+        unified_data = {}
         while not queue.is_empty():
             df = queue.dequeue()
             for col in df.columns:
-                if col not in merged_data:
-                    merged_data[col] = []
-                merged_data[col].extend(df.get_column(col))
-        if not merged_data:
-            return DataFrame({})
-        return DataFrame(merged_data)
+                if col not in unified_data:
+                    unified_data[col] = []
+                unified_data[col].extend(df.get_column(col))
+        return DataFrame(unified_data)
+
+
+
+class TratadorUnificarDataFramesPorColunas(Handler):
+    def handle(self):
+        unified_dataframes = self._unify_dataframes()
+        output_queues = [Queue() for _ in range(len(unified_dataframes))]
+        for i, unified_df in enumerate(unified_dataframes):
+            output_queues[i].enqueue(unified_df)
+        return output_queues
+
+    def _unify_dataframes(self):
+        unified_dataframes = []
+        colunas_comuns = self._get_common_columns()
+        if not colunas_comuns:
+            return unified_dataframes  # Retorna uma lista vazia se não houver colunas comuns
+        for input_queue in self.inputQueues:
+            unified_data = {}
+            while not input_queue.is_empty():
+                df = input_queue.dequeue()
+                for col in colunas_comuns:
+                    if col not in unified_data:
+                        unified_data[col] = []
+                    if col in df.columns:
+                        unified_data[col].extend(df.get_column(col))
+                    else:
+                        unified_data[col].extend([None] * len(df))
+            unified_dataframes.append(DataFrame(unified_data))
+        return unified_dataframes
+
+    def _get_common_columns(self):
+        common_cols = set()
+        first_queue = self.inputQueues[0]
+        while not first_queue.is_empty():
+            df = first_queue.peek()
+            common_cols.update(df.columns)
+            first_queue.dequeue()
+        for queue in self.inputQueues:
+            while not queue.is_empty():
+                df = queue.dequeue()
+                common_cols.intersection_update(df.columns)
+        return list(common_cols)
 
 
 
@@ -342,24 +401,71 @@ input_queue2.enqueue(df4)
 
 input_queues = [input_queue, input_queue2]
 tratador_soma_valores = TratadorSomaValoresPorFila(input_queues, "Valor")
-soma_total = tratador_soma_valores.handle()
+tratador_soma_valores.handle()
 
 # Imprimir soma total
 print("Soma por fila:")
-print(soma_total[0].peek())
+print(tratador_soma_valores.outputQueues[0].peek())
+
 
 # Instanciar e usar tratador de soma entre filas
-tratador_soma_valores_entre_filas = TratadorSomaTotalEntreFilas(soma_total)
+tratador_soma_valores_entre_filas = TratadorSomaTotalEntreFilas(tratador_soma_valores.outputQueues)
 soma_total_entre_filas = tratador_soma_valores_entre_filas.handle()
 # Imprimir soma total entre filas
 print("Soma total entre as filas:")
 print(soma_total_entre_filas[0].dequeue())
 
-# Instanciar e usar tratador de merge de DataFrames
-tratador_merge_dataframes = TratadorMergeDataFrames(input_queues, on="Código Artista")
-df_merged = tratador_merge_dataframes.handle()[0]
-# Imprimir DataFrame mesclado
-print("DataFrame mesclado:")
-print(df_merged)
+# # Instanciar e usar tratador de merge de DataFrames
+# tratador_merge_dataframes = TratadorMergeDataFrames(input_queues, on="Código Artista")
+# df_merged = tratador_merge_dataframes.handle()[0]
+# # Imprimir DataFrame mesclado
+# print("DataFrame mesclado:")
+# print(df_merged)
 
+
+input_queue = Queue()
+input_queue2 = Queue()
+input_queue.enqueue(df)
+input_queue.enqueue(df2)
+input_queue2.enqueue(df3)
+input_queue2.enqueue(df4)
+
+input_queues = [input_queue, input_queue2]
+
+# # Instanciar e usar tratador de unificação de DataFrames
+
+tratador_unificar_dataframes = TratadorUnificarDataFrames(input_queues)
+tratador_unificar_dataframes.handle()
+df_unificado = tratador_unificar_dataframes.outputQueues[0].dequeue()
+# Imprimir DataFrame unificado
+print("DataFrame unificado:")
+print(df_unificado)
+
+
+#Responder a pergunta de quanto o artista com codigo 3 ganhou
+#Instanciar e usar tratador de filtro por nome e código
+
+input_queue = Queue()
+input_queue2 = Queue()
+input_queue.enqueue(df)
+input_queue.enqueue(df2)
+input_queue2.enqueue(df3)
+input_queue2.enqueue(df4)
+
+input_queues = [input_queue, input_queue2]
+
+tratador_filtro_nome_codigo = TratadorFiltroNomeCodigo(input_queues, 3, "Código Artista")
+tratador_filtro_nome_codigo.handle()
+#Usar tratador de soma de valores por fila
+tratador_soma_valores = TratadorSomaValoresPorFila(tratador_filtro_nome_codigo.outputQueues, "Valor")
+tratador_soma_valores.handle()
+#Imprimir soma total por fila
+print("Soma por fila:")
+print(tratador_soma_valores.outputQueues[0].peek())
+#Usar tratador de soma total entre filas
+tratador_soma_valores_entre_filas = TratadorSomaTotalEntreFilas(tratador_soma_valores.outputQueues)
+tratador_soma_valores_entre_filas.handle()
+#Imprimir soma total entre filas
+print("Soma total entre as filas:")
+print(tratador_soma_valores_entre_filas.outputQueues[0].peek())
 
