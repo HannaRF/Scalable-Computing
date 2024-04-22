@@ -9,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+import time
 
 warnings.filterwarnings("ignore")
 
@@ -83,7 +84,8 @@ def generate_ecad_data():
         
         except:
             pass
-
+        
+    time.sleep(30)
     return lista_final
 
 def upload_info(lista: list, cursor: sqlite3.Cursor):
@@ -158,11 +160,12 @@ def generate_royalties_data(cursor: sqlite3.Cursor):
 
         df = pd.concat([df, pd.DataFrame([[data, cod_artista, fonte, valor_rendimento]], columns=['data','cod_artista','fonte','valor_rendimento'])])
 
+        time.sleep(60)
+
     # generate serial code with 10 characters and 5 digits
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
     df.to_csv(f'mocks/csvs/royalties_{code}.csv', index=False)
 
-def generate_followers_data(cursor: sqlite3.Cursor):
 def generate_followers_data(cursor: sqlite3.Cursor):
 
     codes_list = get_artist_code(cursor)
@@ -197,8 +200,3 @@ followers_list = generate_followers_data(cursor)
 cursor.connection.close()
 
 print(followers_list)
-cursor = connect()
-dict_followers_data = generate_followers_data(cursor)
-cursor.connection.close()
-
-print(dict_followers_data)

@@ -1,7 +1,7 @@
 import sqlite3, os
 from abc import ABC, abstractmethod
 from DataFrame import DataFrame
-from mocks.generate_data import generate_followers_data
+from mocks.generate_data import generate_followers_data, connect
 
 class DataRepo(ABC):
     def __init__(self):
@@ -63,16 +63,26 @@ class DataRepoDB(DataRepo):
 
 
 class DataRepoMemoria(DataRepo):
-    def __init__(self, dict_followers_data):
-        self.data = dict_followers_data
+    def __init__(self):
+        self.data = None
 
     def read(self):
-        # read API
-        pass
+        cursor = connect()
+        self.data = generate_followers_data(cursor)
+        cursor.connection.close()
+
+        self.header = list(self.data[0].keys())
 
     def convert(self):
         # convert data to DataFrame object
-        pass
+    
+        converted_data = {col: [] for col in self.header}
+
+        for row in self.data:
+            for col in self.header:
+                converted_data[col].append(row[col])
+
+        self.data = DataFrame(converted_data)
 
 
 if __name__ == "__main__":
@@ -95,11 +105,7 @@ if __name__ == "__main__":
 
     # memoria
 
-    cursor = connect()
-    dict_followers_data = generate_followers_data(cursor)
-    cursor.connection.close()
-
-    data_repo = DataRepoMemoria(dict_followers_data)
+    data_repo = DataRepoMemoria()
     data_repo.read()
     data_repo.convert()
     print(data_repo.data)
