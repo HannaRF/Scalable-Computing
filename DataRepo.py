@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, os
 from abc import ABC, abstractmethod
 from DataFrame import DataFrame
 
@@ -62,13 +62,17 @@ class DataRepoDB(DataRepo):
 
 
 if __name__ == "__main__":
-    # Example usage
-    data_repo = DataRepoDB("mocks/artist_database.db")
-    data_repo.read()
-    data_repo.convert()
-    print(data_repo.data)
 
-    data_repo = DataRepoCSV("mocks/revenue_data.csv")
-    data_repo.read()
-    data_repo.convert()
-    print(data_repo.data)
+    for file in os.listdir("mocks"):
+        
+        if file.endswith(".csv"):
+            data_repo = DataRepoCSV(f"mocks/{file}")
+            data_repo.read()
+            data_repo.convert()
+            print(data_repo.data)
+
+        if file.endswith(".db"):
+            data_repo = DataRepoDB(f"mocks/{file}")
+            data_repo.read()
+            data_repo.convert()
+            print(data_repo.data)
