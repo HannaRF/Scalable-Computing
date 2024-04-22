@@ -1,6 +1,7 @@
-import sqlite3
+import sqlite3, os
 from abc import ABC, abstractmethod
 from DataFrame import DataFrame
+from mocks.generate_data import generate_followers_data
 
 class DataRepo(ABC):
     def __init__(self):
@@ -61,14 +62,45 @@ class DataRepoDB(DataRepo):
         self.data = DataFrame(converted_data)
 
 
+class DataRepoMemoria(DataRepo):
+    def __init__(self, dict_followers_data):
+        self.data = dict_followers_data
+
+    def read(self):
+        # read API
+        pass
+
+    def convert(self):
+        # convert data to DataFrame object
+        pass
+
+
 if __name__ == "__main__":
-    # Example usage
-    data_repo = DataRepoDB("mocks/artist_database.db")
+
+    # # csv
+    # for file in os.listdir("mocks/csvs"):
+
+    #     if file.endswith(".csv"):
+    #         data_repo = DataRepoCSV(f"mocks/{file}")
+    #         data_repo.read()
+    #         data_repo.convert()
+    #         print(data_repo.data)
+
+    # # db
+
+    # data_repo = DataRepoDB(f"mocks/artistas.db")
+    # data_repo.read()
+    # data_repo.convert()
+    # print(data_repo.data)
+
+    # memoria
+
+    cursor = connect()
+    dict_followers_data = generate_followers_data(cursor)
+    cursor.connection.close()
+
+    data_repo = DataRepoMemoria(dict_followers_data)
     data_repo.read()
     data_repo.convert()
     print(data_repo.data)
 
-    data_repo = DataRepoCSV("mocks/revenue_data.csv")
-    data_repo.read()
-    data_repo.convert()
-    print(data_repo.data)
