@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import sqlite3
+from abc import ABC, abstractmethod
 from DataFrame import DataFrame
 
 class DataRepo(ABC):
@@ -14,70 +14,61 @@ class DataRepo(ABC):
 class DataRepoCSV(DataRepo):
     def __init__(self, path):
         self.path = path
-        self.data = None
-        self.columns = None
+        self.data = []
+        self.header = []
 
     def read(self):
-        # read csv file using elementary python
+        # read csv file
         with open(self.path, 'r', encoding='utf-8') as file:
-            data = file.read()
-        self.data = data
-    
-    def convert(self):
-        # convert data to dataframe
-        self.data = self.data.split('\n')
-        self.columns = self.data[0].split(',')
-        converted_data = dict()
+            self.data = file.readlines()
 
-        for i in range(len(self.columns)):
-            converted_data[self.columns[i]] = [row.split(',')[i] for row in self.data[1:]]
-        
+    def convert(self):
+        # convert data to DataFrame object
+        self.header = self.data[0].strip().split(',')
+        data_rows = [row.strip().split(',') for row in self.data[1:]]
+        converted_data = {col: [] for col in self.header}
+
+        for row in data_rows:
+            for col, value in zip(self.header, row):
+                converted_data[col].append(value)
+
         self.data = DataFrame(converted_data)
 
 
 class DataRepoDB(DataRepo):
     def __init__(self, path):
         self.path = path
-        self.data = None
-        self.columns = None
+        self.data = []
+        self.header = []
 
     def read(self):
-        # read DB file using elementary python and get colum names
+        # read DB file
         conn = sqlite3.connect(self.path)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM artistas")
-        data = cursor.fetchall()
+        self.header = [col[0] for col in cursor.description]
+        self.data = cursor.fetchall()
         conn.close()
-        self.data = data
 
-        # column names
-        conn = sqlite3.connect(self.path)
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(artistas)")
-        columns = cursor.fetchall()
-        conn.close()
-        self.columns = [col[1] for col in columns]
-    
     def convert(self):
-        # convert data to dataframe
-        data_converted = dict()
-        
-        for i in range(len(self.columns)): 
-            data_converted[self.columns[i]] = [row[i] for row in self.data]
+        # convert data to DataFrame object
+        converted_data = {col: [] for col in self.header}
 
-        self.data = DataFrame(data_converted)
+        for row in self.data:
+            for col, value in zip(self.header, row):
+                converted_data[col].append(value)
 
-        
-    
+        self.data = DataFrame(converted_data)
+
+
 if __name__ == "__main__":
+    # Example usage
+    data_repo = DataRepoDB("mocks/artist_database.db")
+    data_repo.read()
+    data_repo.convert()
+    print(data_repo.data)
 
-    # data = DataRepoDB("mocks/artist_database.db")
-    # data.read()
-    # data.convert()
-    # print(data.data)
-
-
-    data = DataRepoCSV("mocks/revenue_data.csv")
-    data.read()
-    data.convert()
-    print(data.data)
+    data_repo = DataRepoCSV("mocks/revenue_data.csv")
+    data_repo.read()
+    data_repo.convert()
+    print(data_repo.data)
