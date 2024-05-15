@@ -70,9 +70,69 @@ class Handler:
     def process(self, dataframe):
         pass
 
-
-class HandlerA(Handler):
+class FilterHandler(Handler):
+    
+    def __init__(self, queue_in, queue_out, condition):
+        super().__init__(queue_in, queue_out)
+        self.condition = condition
     
     def process(self, dataframe):
-        dataframe.data = dataframe.data + 1
+        dataframe.data = dataframe.data[dataframe.data.apply(self.condition, axis=1)]
+
+class TransformHandler(Handler):
     
+    def __init__(self, queue_in, queue_out, column, transform_function):
+        super().__init__(queue_in, queue_out)
+        self.column = column
+        self.transform_function = transform_function
+    
+    def process(self, dataframe):
+        dataframe.data[self.column] = dataframe.data[self.column].apply(self.transform_function)
+
+class AggregateHandler(Handler):
+    
+    def __init__(self, queue_in, queue_out, group_by_column, aggregate_column, agg_func):
+        super().__init__(queue_in, queue_out)
+        self.group_by_column = group_by_column
+        self.aggregate_column = aggregate_column
+        self.agg_func = agg_func
+    
+    def process(self, dataframe):
+        dataframe.data = dataframe.data.groupby(self.group_by_column)[self.aggregate_column].agg(self.agg_func).reset_index()
+
+class LoggerHandler(Handler):
+    
+    def process(self, dataframe):
+        print(dataframe.data)
+        
+"""
+Exemplo de uso:
+"""
+if __name__ == "__main__":
+    # Criar filas
+    queue1 = Queue()
+    queue2 = Queue()
+    queue3 = Queue()
+    queue4 = Queue()
+    
+    # Criar DataFrame de exemplo
+    data = {'ID': [1, 2, 3, 4], 'Value': [10, 20, 30, 40]}
+    df = DataFrame(data)
+
+    # Adicionar DataFrame à fila de entrada
+    queue1.put(df)
+    queue1.put(None)  # Indicar final da fila
+    
+    # Criar handlers
+    filter_handler = FilterHandler(queue1, queue2, lambda row: row['Value'] > 15)
+    transform_handler = TransformHandler(queue2, queue3, 'Value', lambda x: x * 2)
+    logger_handler = LoggerHandler(queue3, queue4)
+    
+    # Executar handlers
+    filter_handler.run()
+    transform_handler.run()
+    logger_handler.run()
+    
+    # Pegar resultado final
+    final_df = queue4.get()
+    print(final_df.data)
