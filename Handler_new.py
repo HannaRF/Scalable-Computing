@@ -66,7 +66,7 @@ class Handler:
                 break
             self.process(dataframe)
             self.queue_out.put(dataframe)
-    
+    @abstractmethod
     def process(self, dataframe):
         pass
 
