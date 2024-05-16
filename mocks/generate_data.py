@@ -1,197 +1,117 @@
-import sqlite3
+from faker import Faker
 import random
-import string
-import os
-import warnings
+import requests
 import pandas as pd
-import numpy as np
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
+import time
 
-warnings.filterwarnings("ignore")
+# This class is used to generate fake data for testing purposes
+class generate_data:
+    def __init__(self, num_cycles=200, secs_between_cycles=10):
+        self.fake = Faker("pt_BR")
+        self.number_of_users = 0
+        self.number_of_products = 0
+        self.number_of_storage_items = 0
+        self.number_of_orders = 0
+        self.num_cycles = num_cycles
+        self.secs_between_cycles = secs_between_cycles
 
-def generate_cpf():
-    cpf = ''
-    for i in range(14):
-        if i == 3 or i == 7:
-            cpf += '.'
-        elif i == 11:
-            cpf += '-'
-        else:
-            cpf += str(random.randint(0, 9))
-    return cpf
+    def generate_user(self) -> dict:
+        self.number_of_users += 1
+        return {
+            "user_id": self.number_of_users,
+            "name": self.fake.first_name(),
+            "last_name": self.fake.last_name(),
+            "address": self.fake.address().split("\n")[0] + " -" + self.fake.address().split("/")[1],
+            "sign_up_date": self.fake.date_this_decade().strftime("%Y-%m-%d"),
+            "birth_date": self.fake.date_of_birth(minimum_age=18, maximum_age=65).strftime("%Y-%m-%d"),
+        }
+    
+    def generate_product(self) -> dict:
+        self.number_of_products += 1
+        return {
+            "product_id": self.number_of_products,
+            "name": self.fake.word(),
+            "image": self.fake.image_url(),
+            "description": self.fake.sentence(),
+            "price": self.fake.random_number(2),
+        }
+    
+    def generate_storage(self) -> dict:
+        self.number_of_storage_items += 1
 
-def connect():
-    return sqlite3.connect('mocks/artist_database.db').cursor()
+        assert self.number_of_products > 0, "No products available to store"
+        assert self.number_of_storage_items <= self.number_of_products, "Not enough products to store"
 
-def generate_ecad_data():
-    lista_final = []
+        return {
+            "product_id": self.number_of_storage_items,  
+            "quantity": random.randint(1, 100)
+        }
+    
+    def generate_order(self) -> dict:
+        self.number_of_orders += 1
 
-    # The chromedriver happens to break sometimes, so we have to keep trying until it works
-    while len(lista_final) == 0:
-        try:
-            # remove warnings
-            warnings.filterwarnings("ignore")
+        assert self.number_of_products > 0, "No products available to store"
+        assert self.number_of_storage_items > 0, "No storage items available"
+        assert self.number_of_users > 0, "No users available"
+        assert self.number_of_storage_items <= self.number_of_products, "Not enough products to store"
 
-            # Define the username and password
-            username = "etl@adagg.io"
-            password = "Rosalv0!"
-            link = f'https://www.ecadnet.org.br/client/app/#/Detalhes/Titular/{np.random.randint(1,100000)}/'
+        created_at = self.fake.date_this_month().strftime("%Y-%m-%d")
+        paid_at = self.fake.date_between_dates(date_start=pd.to_datetime(created_at, format="%Y-%m-%d")).strftime("%Y-%m-%d")
+        arrived_at = self.fake.date_between(start_date="today", end_date="+30d").strftime("%Y-%m-%d")
 
-            # initialize the Chrome driver
-            options = webdriver.ChromeOptions()
-            #options.add_argument('--headless')
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
-            driver = webdriver.Chrome(options=options)
-
-            driver.get(link)
-
-            # Login
-            driver.implicitly_wait(2)
-            driver.find_element(By.XPATH, "//input[@type='email']").send_keys(username)
-            driver.find_element(By.XPATH, "//input[@type='password']").send_keys(password)
-            driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH, "//input[@type='submit']"))
-
-            # has to wait for the page to load
-            driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH, "//input[@type='submit']"))
-            WebDriverWait(driver, 10).until(lambda driver: driver.find_element(By.XPATH, "//div[@class='boxContainerInto larguraBox']"))
-
-            # find the elements on the page
-            nome_titular = driver.find_element(By.XPATH, "//div[@class='tituloObraNome ng-binding']")
-            pseudonimo = driver.find_element(By.XPATH, "//div[@class='pseudonimoTitular ng-binding']")
-
-            # Colect the data
-            nome_titular = nome_titular.text
-            pseudonimo = pseudonimo.text
-
-            # find the div that contains the table
-            div_master = driver.find_element(By.XPATH, "//div[@class='boxContainerInto larguraBox']")
-            lista_associacoes = []
-
-            # Loop through the table and append the data to the list
-            for linha in div_master.find_elements(By.XPATH, ".//div[@ng-repeat='titularidade in item.Filiacoes']"):
-                lista_associacoes.append(linha.text.split('\n'))
-
-            associacao = lista_associacoes[0][0]
-            
-            lista_final = [nome_titular, pseudonimo, generate_cpf(), associacao]
-
-            # Close the driver
-            driver.quit()
+        return {
+            "order_id": self.number_of_orders,
+            "user_id": random.randint(1, self.number_of_users),
+            "product_id": random.randint(1, self.number_of_products),
+            "quantity": random.randint(1, 10),
+            "created_at": created_at,
+            "paid_at": paid_at,
+            "arrived_at": arrived_at
+        }
+    
+    def generate_users_file(self, number_of_users: int) -> None:
+        users = []
+        for _ in range(number_of_users):
+            users.append(self.generate_user())
         
-        except:
-            pass
+        pd.DataFrame(users).to_csv("mocks/data/users.csv", index=False)
 
-    return lista_final
+    def generate_products_file(self, number_of_products: int) -> None:
+        products = []
+        for _ in range(number_of_products):
+            products.append(self.generate_product())
+        
+        pd.DataFrame(products).to_csv("mocks/data/products.csv", index=False)
 
-def upload_info(lista: list, cursor: sqlite3.Cursor):
+    def generate_storage_file(self) -> None:
+        storage = []
+        for _ in range(self.number_of_products):
+            storage.append(self.generate_storage())
+        
+        pd.DataFrame(storage).to_csv("mocks/data/storage.csv", index=False)
 
-    # Table creation
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS artists (
-        artist_code INTEGER PRIMARY KEY AUTOINCREMENT,
-        full_name TEXT, artistic_name TEXT,
-        cpf TEXT,
-        association TEXT)
-    ''')
-    cursor.connection.commit()
+    def generate_orders_file(self, number_of_orders: int) -> None:
+        orders = []
+        for _ in range(number_of_orders):
+            orders.append(self.generate_order())
+        
+        pd.DataFrame(orders).to_csv("mocks/data/orders.csv", index=False)
 
-    # Insert data
-    cursor.execute('''
-    INSERT INTO artists (full_name, artistic_name, cpf, association)
-    VALUES (?, ?, ?, ?)
-    ''', lista)
-    cursor.connection.commit()
+    def main(self):
+        cycles = 0
+        while cycles < self.num_cycles:
+            self.generate_users_file(random.randint(1, 20))
+            self.generate_products_file(random.randint(1, 100))
+            self.generate_storage_file()
+            self.generate_orders_file(random.randint(1, 200))
 
-def get_association_list(cursor: sqlite3.Cursor):
+            self.number_of_orders = 0
+            self.number_of_products = 0
+            self.number_of_storage_items = 0
+            self.number_of_users = 0
 
-    # Table creation
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS artists (
-        artist_code INTEGER PRIMARY KEY AUTOINCREMENT,
-        full_name TEXT, artistic_name TEXT,
-        cpf TEXT,
-        association TEXT)
-    ''')
+            cycles += 1
+            time.sleep(self.secs_between_cycles)
 
-    cursor.connection.commit()
-
-    cursor.execute('''
-    SELECT DISTINCT association FROM artists
-    ''')
-
-    return [i[0] for i in cursor.fetchall()]
-
-def get_artist_code(cursor: sqlite3.Cursor):
-
-    # Table creation
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS artists (
-        artist_code INTEGER PRIMARY KEY AUTOINCREMENT,
-        full_name TEXT, artistic_name TEXT,
-        cpf TEXT,
-        association TEXT)
-    ''')
-
-    cursor.connection.commit()
-
-    cursor.execute('''
-    SELECT DISTINCT artist_code FROM artists
-    ''')
-
-    return [i[0] for i in cursor.fetchall()]
-
-def generate_royalties_data(cursor: sqlite3.Cursor):
-    lista_codigos = get_artist_code(cursor)
-
-    fontes = ["YOUTUBE", "SPOTIFY", "TV GLOBO", "RÁDIOS AM/FM", "SHOWS AO VIVO", "SONORIZAÇÃO AMBIENTAL"]
-
-    df = pd.DataFrame(columns=['data','cod_artista','fonte','valor_rendimento'])
-
-    for i in range(1000):
-        fonte = np.random.choice(fontes, p=[0.15, 0.3, 0.1, 0.15, 0.25, 0.05])
-        cod_artista = np.random.choice(lista_codigos)
-        data = f'{random.randint(2010,2021)}-{random.randint(1,12)}-{random.randint(1,28)}'
-        valor_rendimento = round(random.uniform(0.01, 100), 2)
-
-        df = pd.concat([df, pd.DataFrame([[data, cod_artista, fonte, valor_rendimento]], columns=['data','cod_artista','fonte','valor_rendimento'])])
-
-    # generate serial code with 10 characters and 5 digits
-    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    df.to_csv(f'mocks/csvs/royalties_{code}.csv', index=False)
-
-def generate_followers_data(cursor: sqlite3.Cursor):
-    codes_list = get_artist_code(cursor)
-
-    final_list = []
-
-    for code in codes_list:
-        final_list.append({
-            "artist_code": code,
-            "instagram": random.randint(0, 100000),
-            "twitter": random.randint(0, 100000),
-            "facebook": random.randint(0, 100000),
-            "youtube": random.randint(0, 100000),
-            "spotify": random.randint(0, 100000)
-        })
-
-    return final_list
-
-# cursor = connect()
-# for i in range(10):
-#     lista = generate_ecad_data()
-#     upload_info(lista, cursor)
-# cursor.connection.close()
-
-# cursor = connect()
-# for i in range(10):
-#     generate_royalties_data(cursor)
-# cursor.connection.close()
-
-cursor = connect()
-followers_list = generate_followers_data(cursor)
-cursor.connection.close()
-
-print(followers_list)
+if __name__ == "__main__":
+    generate_data(num_cycles=100, secs_between_cycles=5).main()

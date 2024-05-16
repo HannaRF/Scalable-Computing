@@ -1,7 +1,7 @@
 import sqlite3, os
 from abc import ABC, abstractmethod
 from DataFrame import DataFrame
-from mocks.generate_data import generate_followers_data
+from mocks.generate_data import generate_followers_data, connect
 
 class DataRepo(ABC):
     def __init__(self):
@@ -38,21 +38,34 @@ class DataRepoCSV(DataRepo):
 
 class DataRepoDB(DataRepo):
     def __init__(self, path):
-        self.path = path
+        self.path = path +"/"+ self.get_db_name()
+        self.table_names = self.get_table_names()
         self.data = []
         self.header = []
 
-    def read(self):
+    def get_db_name(self):
+        return [file for file in os.listdir(self.path) if file.endswith(".db")][0]
+
+    def get_table_names(self):
+        conn = sqlite3.connect(self.path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        table_names = cursor.fetchall()
+        conn.close()
+        return [name[0] for name in table_names]
+
+    def read(self, table_name):
         # read DB file
         conn = sqlite3.connect(self.path)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM artistas")
-        self.header = [col[0] for col in cursor.description]
+        cursor.execute(f"SELECT * FROM {table_name}")
         self.data = cursor.fetchall()
         conn.close()
+        return self.data
 
     def convert(self):
         # convert data to DataFrame object
+        self.header = [col[0] for col in self.data.description]
         converted_data = {col: [] for col in self.header}
 
         for row in self.data:
@@ -61,18 +74,27 @@ class DataRepoDB(DataRepo):
 
         self.data = DataFrame(converted_data)
 
-
 class DataRepoMemoria(DataRepo):
-    def __init__(self, dict_followers_data):
-        self.data = dict_followers_data
+    def __init__(self):
+        self.data = None
 
     def read(self):
-        # read API
-        pass
+        cursor = connect()
+        self.data = generate_followers_data(cursor)
+        cursor.connection.close()
+
+        self.header = list(self.data[0].keys())
 
     def convert(self):
         # convert data to DataFrame object
-        pass
+    
+        converted_data = {col: [] for col in self.header}
+
+        for row in self.data:
+            for col in self.header:
+                converted_data[col].append(row[col])
+
+        self.data = DataFrame(converted_data)
 
 
 if __name__ == "__main__":
@@ -88,19 +110,15 @@ if __name__ == "__main__":
 
     # # db
 
-    # data_repo = DataRepoDB(f"mocks/artistas.db")
-    # data_repo.read()
-    # data_repo.convert()
-    # print(data_repo.data)
-
-    # memoria
-
-    cursor = connect()
-    dict_followers_data = generate_followers_data(cursor)
-    cursor.connection.close()
-
-    data_repo = DataRepoMemoria(dict_followers_data)
+    data_repo = DataRepoDB(f"mocks/")
     data_repo.read()
     data_repo.convert()
     print(data_repo.data)
+
+    # memoria
+
+    # data_repo = DataRepoMemoria()
+    # data_repo.read()
+    # data_repo.convert()
+    # print(data_repo.data)
 
