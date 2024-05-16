@@ -163,8 +163,6 @@ def generate_royalties_data(cursor: sqlite3.Cursor):
     df.to_csv(f'mocks/csvs/royalties_{code}.csv', index=False)
 
 def generate_followers_data(cursor: sqlite3.Cursor):
-def generate_followers_data(cursor: sqlite3.Cursor):
-
     codes_list = get_artist_code(cursor)
 
     final_list = []
@@ -197,8 +195,3 @@ followers_list = generate_followers_data(cursor)
 cursor.connection.close()
 
 print(followers_list)
-cursor = connect()
-dict_followers_data = generate_followers_data(cursor)
-cursor.connection.close()
-
-print(dict_followers_data)
