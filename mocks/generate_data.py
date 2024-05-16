@@ -97,7 +97,7 @@ class generate_data:
         
         pd.DataFrame(orders).to_csv("mocks/data/orders.csv", index=False)
 
-    def main(self):
+    def run(self):
         cycles = 0
         while cycles < self.num_cycles:
             self.generate_users_file(random.randint(1, 20))
@@ -114,4 +114,4 @@ class generate_data:
             time.sleep(self.secs_between_cycles)
 
 if __name__ == "__main__":
-    generate_data(num_cycles=100, secs_between_cycles=5).main()
+    generate_data(num_cycles=100, secs_between_cycles=5).run()
