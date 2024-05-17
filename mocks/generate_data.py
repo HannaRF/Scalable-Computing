@@ -108,7 +108,7 @@ class CadeAnalyticsMock(ContaVerdeMock):
         
         for _ in range(num_requests):
             event_data = {
-                "data_notificacao": self.fake.date_time_this_month().strftime("%Y-%m-%d %H:%M:%S"),
+                "data_notificacao": self.fake.date_time_between(start_date="-300s", end_date="now").strftime("%Y-%m-%d %H:%M:%S"),
                 "id_usuario": random.randint(1, self.number_of_users),
                 "estimulo": random.choice(self.events),
                 "componente_alvo": self.generate_componente_alvo()
@@ -144,3 +144,8 @@ class generateData:
         self.number_of_products = 0
         self.number_of_storage_items = 0
         self.number_of_users = 0
+
+if __name__ == "__main__":
+    generateData = generateData()
+    generateData.run()
+    print(generateData.data)

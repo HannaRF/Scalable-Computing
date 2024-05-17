@@ -1,20 +1,100 @@
 user_id,name,last_name,address,sign_up_date,birth_date
-1,Liz,da Cunha,"Avenida de Câmara, 58 - AP",2021-05-03,1971-04-01
-2,Stella,Farias,"Vila da Costa, 90 - RJ",2020-04-03,1992-03-19
-3,Sarah,Nascimento,"Núcleo Otto Dias, 2 - CE",2020-08-30,1976-07-22
-4,Miguel,Machado,"Residencial de Gomes, 39 - RR",2022-01-01,1972-02-13
-5,Esther,Vieira,"Praça Sarah Alves, 93 - PI",2020-03-17,1982-07-17
-6,Heloísa,da Rosa,"Morro Lucca Fernandes, 2 - RN",2023-11-27,1988-10-20
-7,Luigi,da Mata,"Campo Vasconcelos, 1 - RS",2024-01-31,1960-01-24
-8,Gael Henrique,Lopes,"Setor Antônio Garcia, 53 - DF",2021-05-11,1982-07-20
-9,Ana Cecília,Melo,"Vereda de Martins, 39 - PI",2022-11-30,1994-05-11
-10,Dante,Pinto,"Núcleo Luísa Vargas, 244 - MS",2023-03-16,1997-01-12
-11,Ana,Fonseca,"Rodovia Arthur Azevedo, 2 - RN",2020-10-26,1969-07-17
-12,Valentim,Casa Grande,Viaduto Lorena Moreira - SP,2023-06-24,1958-06-29
-13,Benicio,Pinto,Alameda de Marques - BA,2023-02-28,1966-11-02
-14,Mariah,Santos,"Recanto Leão, 357 - AC",2024-02-08,1984-05-22
-15,Bento,Nunes,"Favela de Almeida, 31 - MG",2021-06-22,1986-02-28
-16,Luiza,Marques,"Parque Luna Lopes, 72 - SE",2022-12-19,1962-12-08
-17,Ana Cecília,Albuquerque,"Conjunto Mendonça, 20 - AP",2021-10-25,1992-07-24
-18,Maria Luiza,Vargas,"Lagoa Borges, 198 - SE",2020-11-28,1976-08-11
-19,Davi Miguel,Novais,"Distrito Caldeira, 56 - MS",2023-07-11,1970-09-12
+1,Emanuel,Rios,"Esplanada de Andrade, 78 - RO",2023-01-18,1995-10-29
+2,Evelyn,Mendonça,"Via Luna Dias, 57 - MT",2024-03-05,1985-01-25
+3,Gael Henrique,Aragão,"Aeroporto Maysa Teixeira, 9 - MS",2022-02-20,1960-03-12
+4,Diego,Souza,Viela Teixeira - RN,2022-12-30,1996-06-26
+5,Ian,Monteiro,"Parque Daniel Novais, 95 - RN",2021-08-30,1983-07-21
+6,Antônio,Nogueira,"Via Dom da Mata, 83 - RN",2022-10-09,1984-07-10
+7,Asafe,Rios,"Rua Henry Costela, 55 - TO",2020-01-22,1979-06-09
+8,Augusto,Costa,"Alameda Heloisa Novaes, 92 - MT",2023-04-21,1989-03-07
+9,Melissa,Gonçalves,"Trevo Cavalcante, 33 - AP",2022-08-07,1964-11-10
+10,Davi Lucas,Aragão,"Vereda de Vasconcelos, 985 - RJ",2020-02-12,1959-05-19
+11,Letícia,Alves,"Via Eloá Castro, 66 - AC",2024-05-08,1970-10-23
+12,Henry Gabriel,Lima,"Feira Cauã Sales, 72 - BA",2022-01-22,1994-02-24
+13,Renan,Vieira,"Viaduto Daniel Sá, 9 - SE",2022-05-13,1960-12-13
+14,Melina,Pastor,"Trevo de Campos, 627 - PA",2022-12-10,1988-12-14
+15,Ravi,Gonçalves,"Setor Melo, 9 - RJ",2023-01-09,1998-06-26
+16,João Pedro,Nascimento,"Morro Porto, 416 - MG",2021-09-18,1988-08-27
+17,Luigi,da Luz,"Fazenda João Felipe Martins, 27 - MS",2023-09-09,1966-07-23
+18,Pietro,Siqueira,Largo Lunna Viana - AC,2021-05-01,2005-04-17
+19,Ísis,da Mota,"Largo de Almeida, 62 - AC",2023-03-18,1986-01-01
+20,André,Araújo,"Vila Bryan Teixeira, 22 - GO",2020-09-08,1983-11-24
+21,Luísa,da Mota,"Recanto Monteiro, 618 - PE",2021-06-25,1986-07-15
+22,Maria Julia,Guerra,"Morro Cavalcante, 87 - PA",2020-02-08,2002-08-18
+23,Benício,das Neves,"Núcleo Cavalcanti, 117 - SC",2022-11-16,1990-11-17
+24,Vinícius,Freitas,Rodovia Thiago Montenegro - AP,2020-04-24,1993-05-04
+25,Manuela,Vasconcelos,"Campo Aparecida, 795 - ES",2023-02-07,1965-07-08
+26,Gael,Freitas,"Lagoa Kaique da Rocha, 27 - SC",2023-02-19,1978-06-12
+27,João Pedro,Monteiro,"Trevo Marques, 38 - RO",2021-11-16,1975-12-18
+28,Bianca,Barros,"Estação Oliveira, 8 - DF",2021-10-03,1958-10-31
+29,Thiago,Borges,"Lagoa de Farias, 470 - TO",2020-02-28,2004-07-14
+30,Júlia,Andrade,"Rodovia Rodrigo Santos, 29 - AC",2023-02-05,1968-11-30
+31,Theodoro,Carvalho,Feira Kaique da Costa - RR,2021-12-20,1996-01-18
+32,Leandro,Costa,"Parque da Rosa, 3 - AM",2022-03-30,1965-01-06
+33,José Miguel,Rios,"Área Aragão, 55 - RO",2021-08-31,1991-06-03
+34,Mariana,Novais,"Favela Giovanna Sales, 56 - SE",2023-01-09,2002-12-02
+35,Lucas Gabriel,Cardoso,"Quadra Carvalho, 23 - RO",2024-02-18,1963-11-19
+36,Vitor Hugo,Leão,Vila Anthony Costela - PI,2021-06-17,1978-11-26
+37,Leandro,Lima,"Campo das Neves, 31 - AC",2024-02-18,1958-10-08
+38,Marcelo,Nunes,"Favela de Silveira, 36 - RR",2021-09-11,1976-10-28
+39,Gabriela,Albuquerque,"Distrito de Duarte, 77 - AC",2023-11-22,1966-09-02
+40,Luiz Henrique,Vasconcelos,"Praia Nicolas Pastor, 66 - MS",2021-09-24,1972-05-13
+41,Liam,Oliveira,"Distrito de da Cruz, 19 - AC",2020-07-23,1965-07-16
+42,Gabrielly,Cavalcanti,"Jardim Gael Henrique Fernandes, 881 - AM",2024-04-16,2003-11-02
+43,Davi Miguel,Guerra,Estrada de Almeida - AM,2024-01-14,1968-05-25
+44,Vitor,Oliveira,"Recanto Andrade, 17 - AC",2022-01-10,1978-12-20
+45,Brayan,da Rocha,Parque de Peixoto - AL,2022-06-20,1996-03-10
+46,Enzo,Nogueira,"Campo de Porto, 231 - PB",2021-07-13,1998-01-09
+47,Maria Luiza,Rezende,"Jardim Ana Julia Dias, 99 - PB",2021-01-20,1961-04-17
+48,Sophia,Garcia,"Via Castro, 9 - PR",2022-07-23,1972-06-24
+49,Ester,Farias,"Feira Abreu, 64 - PR",2024-03-12,1988-01-10
+50,Maria Luísa,Sampaio,"Praia Ana Cecília Mendes, 20 - MG",2020-11-15,1958-08-31
+51,Laura,Sales,"Pátio Machado, 53 - RO",2021-07-19,1971-06-23
+52,Noah,Novais,"Passarela João Guilherme Aragão, 3 - PI",2023-05-28,2001-07-30
+53,Alícia,Ferreira,"Largo Francisco Lopes, 41 - TO",2021-07-17,1985-04-10
+54,Augusto,Cunha,"Viela de Sá, 6 - PE",2023-04-21,1988-10-23
+55,Sophia,Nunes,Aeroporto da Rosa - RO,2020-03-12,1991-07-22
+56,Dante,Caldeira,Favela de Vieira - PA,2020-02-07,1962-04-22
+57,Gustavo Henrique,Camargo,"Estação Garcia, 802 - PE",2022-01-10,2005-05-18
+58,Carlos Eduardo,da Cunha,"Praia Esther Pereira, 54 - RO",2021-09-10,1963-04-02
+59,Caio,Caldeira,Travessa de Monteiro - MT,2024-03-14,1972-02-25
+60,Alexandre,da Cruz,"Estrada Gustavo Rocha, 26 - RO",2020-11-13,1959-06-17
+61,Enzo Gabriel,Andrade,"Vale Maria Alice Costa, 6 - DF",2020-04-18,1968-09-26
+62,Guilherme,Moraes,"Parque Davi Luiz Pires, 3 - CE",2020-04-06,1995-09-19
+63,Léo,Nogueira,Colônia de Cavalcante - MT,2020-02-23,1977-05-04
+64,Melissa,Gomes,"Residencial de Moura, 34 - PR",2024-04-03,1988-04-02
+65,Davi Lucca,Marques,"Viela de Pires, 49 - BA",2024-01-21,1982-11-21
+66,Zoe,Machado,"Pátio Lavínia Barbosa, 5 - RN",2023-11-14,2003-05-09
+67,Renan,Cassiano,"Feira Ayla da Mota, 732 - AM",2021-07-04,1960-07-16
+68,Ana Laura,Novaes,"Praça Maya Azevedo, 4 - CE",2020-02-08,2005-03-02
+69,Sara,Gonçalves,"Chácara de Novaes, 91 - PI",2024-01-08,1985-08-09
+70,Luiz Fernando,Oliveira,"Chácara da Cunha, 59 - RS",2021-12-08,1960-03-30
+71,Maria Clara,Rios,"Via de da Mota, 80 - MA",2024-04-14,1966-06-09
+72,Thiago,Porto,Morro Teixeira - SP,2023-03-07,1982-03-22
+73,Isadora,Cassiano,"Loteamento Igor Jesus, 37 - RS",2020-03-11,2001-08-17
+74,Stephany,Oliveira,"Trevo Lima, 57 - MG",2022-04-08,1972-04-25
+75,Ana Sophia,Peixoto,"Recanto de Mendonça, 62 - SE",2020-09-16,1993-02-03
+76,Benjamin,Marques,"Núcleo Pereira, 707 - SP",2020-07-29,1994-05-02
+77,Evelyn,Jesus,Parque de Barbosa - AC,2022-06-25,1964-05-14
+78,Daniela,Caldeira,"Vale Asafe Cunha, 8 - DF",2023-12-25,1997-08-13
+79,José,da Rosa,"Viaduto de Campos, 7 - AC",2022-08-02,1974-11-26
+80,Isabella,Costa,"Rua Leonardo Nunes, 2 - RS",2021-01-13,1985-11-03
+81,João Guilherme,Rodrigues,"Setor Maria Alice Rodrigues, 79 - CE",2021-05-08,1962-04-20
+82,Luigi,Garcia,"Favela Brito, 73 - AP",2022-10-25,1969-05-26
+83,Sofia,Oliveira,Conjunto Lunna da Mota - SE,2023-06-16,2004-01-20
+84,Giovanna,da Rocha,"Trecho Lunna Leão, 1 - RJ",2022-06-18,1988-01-02
+85,Benício,Caldeira,"Trecho da Luz, 281 - SE",2021-11-14,2006-02-10
+86,Apollo,Silva,"Estação Maria Julia Pimenta, 690 - MG",2023-06-14,1996-12-20
+87,Enzo,Nogueira,"Feira Andrade, 40 - AL",2020-10-28,1974-04-15
+88,Dom,Ribeiro,"Quadra da Cruz, 83 - SP",2022-06-20,1983-12-17
+89,Paulo,Siqueira,"Vale Luiz Otávio da Paz, 48 - MS",2023-01-28,1973-06-23
+90,Bernardo,Santos,"Morro Theodoro Lima, 72 - RS",2021-02-21,2005-10-26
+91,Nicole,Macedo,"Praia de Silva, 8 - RO",2021-01-10,1979-10-13
+92,Maria Cecília,Rocha,"Vila da Mata, 84 - SC",2022-08-01,1982-06-02
+93,Luigi,Fonseca,Lagoa Castro - MG,2020-03-13,1981-08-03
+94,João Pedro,Pastor,"Sítio da Rosa, 11 - RS",2020-09-14,1986-11-21
+95,Maria Flor,Câmara,Via Almeida - RN,2023-01-26,1964-04-02
+96,Enzo Gabriel,Fogaça,"Morro Aurora Sampaio, 63 - AC",2022-05-26,1967-06-28
+97,Sarah,Guerra,Distrito Bianca Siqueira - MT,2024-04-02,1989-07-16
+98,Liz,Cirino,Vila Maria Cecília Siqueira - MG,2023-02-03,1988-05-27
+99,Guilherme,Azevedo,"Jardim Erick Cavalcanti, 71 - SE",2021-05-15,1984-06-20
