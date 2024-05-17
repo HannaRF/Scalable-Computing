@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import time
 
-# This class is used to generate fake data for testing purposes
 class ContaVerdeMock:
     def __init__(self):
         self.fake = Faker("pt_BR")
@@ -139,9 +138,9 @@ class generateData:
 
             self.cade_analytics = CadeAnalyticsMock(self.conta_verde.number_of_users, self.conta_verde.number_of_products)
             num_requests = random.randint(1, 200)
-            data = self.cade_analytics.get_data(num_requests)
+            self.data = self.cade_analytics.get_data(num_requests)
 
-            print(data)
+            # print(data)
 
             self.number_of_orders = 0
             self.number_of_products = 0
@@ -151,5 +150,10 @@ class generateData:
             time.sleep(self.secs_between_cycles)
             cycles += 1
 
+
+
 if __name__ == "__main__":
-    generateData(10, 10).run()
+    generateData(num_cycles = 1, secs_between_cycles = 1).run()
+   
+
+    print('ok')
