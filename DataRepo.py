@@ -1,7 +1,7 @@
 import sqlite3, os
 from abc import ABC, abstractmethod
 from DataFrame import DataFrame
-from mocks.generate_data import generate_followers_data, connect
+from mocks.generate_data import generate_data
 
 class DataRepo(ABC):
     def __init__(self):
@@ -34,6 +34,7 @@ class DataRepoCSV(DataRepo):
                 converted_data[col].append(value)
 
         self.data = DataFrame(converted_data)
+    
 
 
 class DataRepoDB(DataRepo):
@@ -96,24 +97,36 @@ class DataRepoMemoria(DataRepo):
 
         self.data = DataFrame(converted_data)
 
+def generate_dataframes_csv():
+    data = dict()
+
+    for file in os.listdir("mocks/data"):
+
+        if file.endswith(".csv"):
+            data_repo = DataRepoCSV(f"mocks/data/{file}")
+            data_repo.read()
+            data_repo.convert()
+            print(file)
+            print(data_repo.data)
+
+            data[file] = data_repo.data 
+    
+    return data
+
+
 
 if __name__ == "__main__":
+    generate_data(num_cycles=1, secs_between_cycles=0).run()
 
     # # csv
-    # for file in os.listdir("mocks/csvs"):
-
-    #     if file.endswith(".csv"):
-    #         data_repo = DataRepoCSV(f"mocks/{file}")
-    #         data_repo.read()
-    #         data_repo.convert()
-    #         print(data_repo.data)
-
+    data = generate_dataframes_csv()
+    
     # # db
 
-    data_repo = DataRepoDB(f"mocks/")
-    data_repo.read()
-    data_repo.convert()
-    print(data_repo.data)
+    # data_repo = DataRepoDB(f"mocks/")
+    # data_repo.read()
+    # data_repo.convert()
+    # print(data_repo.data)
 
     # memoria
 
