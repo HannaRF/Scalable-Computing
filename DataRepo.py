@@ -76,26 +76,29 @@ class DataRepoMemoria(DataRepo):
     def __init__(self):
         self.data = None
 
-    def read(self):
-        cursor = connect()
-        self.data = generate_followers_data(cursor)
-        cursor.connection.close()
+    def read(self, data=None):
+        # cursor = connect()
+        # self.data = generate_followers_data(cursor)
+        # cursor.connection.close()
 
-        self.header = list(self.data[0].keys())
+        #self.header = list(self.data[0].keys())\
+        self.data = data
+        
 
     def convert(self):
         # convert data to DataFrame object
+        cols = self.data[0].keys()
     
-        converted_data = {col: [] for col in self.header}
+        converted_data = {col: [] for col in cols}
 
         for row in self.data:
-            for col in self.header:
+            for col in cols:
                 converted_data[col].append(row[col])
 
         self.data = DataFrame(converted_data)
 
 def extract_csv_data():
-    data = dict()
+    data = []
 
     for file in os.listdir("mocks/data"):
 
@@ -104,12 +107,12 @@ def extract_csv_data():
             data_repo.read()
             data_repo.convert()
 
-            data[file.replace('.csv', '')] = data_repo.data
+            data.append(data_repo.data)
     
     return data
 
 
-def extract_db_data():
+def extract_db_data(data):
 
     for file in os.listdir("mocks"):
 
@@ -124,15 +127,24 @@ def extract_db_data():
     
     return data
 
-if __name__ == "__main__":
-    generateData(num_cycles=1, secs_between_cycles=0).run()
+def extract_memory_data(data):
 
-    # csv
-    data = extract_csv_data()
+    data_repo = DataRepoMemoria()
+    data_repo.read(data)
+    data_repo.convert()
     
-    # db
+    return data_repo.data
 
-    data = extract_db_data()
+if __name__ == "__main__":
+    pass
+    # generateData().run()
+
+    # # csv
+    # data = extract_csv_data()
+    
+    # # db
+
+    # data = extract_db_data()
 
     # memoria
 
