@@ -123,37 +123,24 @@ class CadeAnalyticsMock(ContaVerdeMock):
         return f"{random.choice(elementos)} - {np.random.choice(componentes, p=[0.1, 0.65, 0.1, 0.05, 0.1])}"
 
 class generateData:
-    def __init__(self, num_cycles: int, secs_between_cycles: int):
-        self.num_cycles = num_cycles
-        self.secs_between_cycles = secs_between_cycles
+    def __init__(self):
+        self.data = None
     
     def run(self):
-        cycles = 0
-        while cycles < self.num_cycles:
-            self.conta_verde = ContaVerdeMock()
-            self.conta_verde.generate_users_file(random.randint(1, 100))
-            self.conta_verde.generate_products_file(random.randint(1, 100))
-            self.conta_verde.generate_storage_file()
-            self.conta_verde.generate_orders_file(random.randint(1, 100))
+        # Generate new files with ContaVerdeMock
+        self.conta_verde = ContaVerdeMock()
+        self.conta_verde.generate_users_file(random.randint(1, 100))
+        self.conta_verde.generate_products_file(random.randint(1, 100))
+        self.conta_verde.generate_storage_file()
+        self.conta_verde.generate_orders_file(random.randint(1, 100))
 
-            self.cade_analytics = CadeAnalyticsMock(self.conta_verde.number_of_users, self.conta_verde.number_of_products)
-            num_requests = random.randint(1, 200)
-            self.data = self.cade_analytics.get_data(num_requests)
+        # Generate new data with CadeAnalyticsMock using the number of users and products from ContaVerdeMock
+        self.cade_analytics = CadeAnalyticsMock(self.conta_verde.number_of_users, self.conta_verde.number_of_products)
+        num_requests = random.randint(1, 200)
+        self.data = self.cade_analytics.get_data(num_requests)
 
-            # print(data)
-
-            self.number_of_orders = 0
-            self.number_of_products = 0
-            self.number_of_storage_items = 0
-            self.number_of_users = 0
-
-            time.sleep(self.secs_between_cycles)
-            cycles += 1
-
-
-
-if __name__ == "__main__":
-    generateData(num_cycles = 1, secs_between_cycles = 1).run()
-   
-
-    print('ok')
+        # Wait for the next cycle
+        self.number_of_orders = 0
+        self.number_of_products = 0
+        self.number_of_storage_items = 0
+        self.number_of_users = 0

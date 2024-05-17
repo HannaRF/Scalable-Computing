@@ -7,10 +7,13 @@ def main():
 
 
     # Simulate
-    generateData(num_cycles = 1, secs_between_cycles = 1).run()
+    generateData  = generateData()
+    generateData.run()
 
-    # Extract
+    # get data
+    data = generateData.data
 
+    # Extract data
     data = extract_csv_data()
     for key in data.keys():
         locals()[key] = data[key]

@@ -1,9 +1,20 @@
 user_id,name,last_name,address,sign_up_date,birth_date
-1,João Gabriel,Alves,"Vila de Lopes, 638 - SP",2020-01-29,1975-04-19
-2,Caroline,Nascimento,"Residencial de Novais, 7 - MG",2020-09-15,2002-03-14
-3,Carlos Eduardo,Vargas,"Jardim de Macedo, 84 - RJ",2022-09-01,2001-06-14
-4,Antonella,Viana,"Vila de Vargas, 3 - MS",2022-09-10,2004-10-03
-5,Isaac,Martins,Travessa Agatha Cunha - TO,2020-05-25,1980-11-07
-6,Luna,Melo,"Lago de Nogueira, 51 - MT",2023-10-20,1975-07-25
-7,Isis,Gomes,"Conjunto Sá, 720 - TO",2020-11-20,1962-10-01
-8,Ravi,Pimenta,"Avenida de Peixoto, 7 - SC",2023-10-28,1992-05-08
+1,Liz,da Cunha,"Avenida de Câmara, 58 - AP",2021-05-03,1971-04-01
+2,Stella,Farias,"Vila da Costa, 90 - RJ",2020-04-03,1992-03-19
+3,Sarah,Nascimento,"Núcleo Otto Dias, 2 - CE",2020-08-30,1976-07-22
+4,Miguel,Machado,"Residencial de Gomes, 39 - RR",2022-01-01,1972-02-13
+5,Esther,Vieira,"Praça Sarah Alves, 93 - PI",2020-03-17,1982-07-17
+6,Heloísa,da Rosa,"Morro Lucca Fernandes, 2 - RN",2023-11-27,1988-10-20
+7,Luigi,da Mata,"Campo Vasconcelos, 1 - RS",2024-01-31,1960-01-24
+8,Gael Henrique,Lopes,"Setor Antônio Garcia, 53 - DF",2021-05-11,1982-07-20
+9,Ana Cecília,Melo,"Vereda de Martins, 39 - PI",2022-11-30,1994-05-11
+10,Dante,Pinto,"Núcleo Luísa Vargas, 244 - MS",2023-03-16,1997-01-12
+11,Ana,Fonseca,"Rodovia Arthur Azevedo, 2 - RN",2020-10-26,1969-07-17
+12,Valentim,Casa Grande,Viaduto Lorena Moreira - SP,2023-06-24,1958-06-29
+13,Benicio,Pinto,Alameda de Marques - BA,2023-02-28,1966-11-02
+14,Mariah,Santos,"Recanto Leão, 357 - AC",2024-02-08,1984-05-22
+15,Bento,Nunes,"Favela de Almeida, 31 - MG",2021-06-22,1986-02-28
+16,Luiza,Marques,"Parque Luna Lopes, 72 - SE",2022-12-19,1962-12-08
+17,Ana Cecília,Albuquerque,"Conjunto Mendonça, 20 - AP",2021-10-25,1992-07-24
+18,Maria Luiza,Vargas,"Lagoa Borges, 198 - SE",2020-11-28,1976-08-11
+19,Davi Miguel,Novais,"Distrito Caldeira, 56 - MS",2023-07-11,1970-09-12
