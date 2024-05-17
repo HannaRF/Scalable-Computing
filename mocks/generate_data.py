@@ -145,7 +145,7 @@ class generateData:
         self.number_of_storage_items = 0
         self.number_of_users = 0
 
-if __name__ == "__main__":
-    generateData = generateData()
-    generateData.run()
-    print(generateData.data)
+# if __name__ == "__main__":
+#     generateData = generateData()
+#     generateData.run()
+#     print(generateData.data)

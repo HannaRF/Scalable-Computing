@@ -16,7 +16,7 @@ def calculate_products_viewed_per_minute(requests_df, result_queue):
     
     # filtrar pelo último minuto
     products_viewed_last_minute = sum(1 for timestamp, produto in zip(timestamps, produtos) if timestamp > one_minute_ago)
-    products_viewed_last_minute = set(produtos)
+    products_viewed_last_minute = len(set(produtos))
 
     # Enviando o resultado para a fila de resultados
     result_queue.put(('products_viewed_per_minute', products_viewed_last_minute))
@@ -91,26 +91,26 @@ def calculate_products_viewed_per_minute(requests_df, result_queue):
 #     result_queue.put(('products_sold_without_stock', products_sold_without_stock))
 
 def main():
-    # Simulate data
-    simulation = generateData()
-    simulation.run()
-
-    # Get data
-    cade_analytics_data = simulation.data
-
-    # Extract data from CSVs and memory
-    orders, products, storage, users = extract_csv_data()
-    requests = extract_memory_data(cade_analytics_data)
-
-    # Convert datetime strings to datetime objects for comparison
-    for order in orders:
-        # 4 : created_at
-        order[4] = datetime.strptime(order[4], '%Y-%m-%d')
-    for req in requests:
-        # 0 : data_notificacao
-        req[0] = datetime.strptime(req[0], '%Y-%m-%d %H:%M:%S')
-
     while True:
+        # Simulate data
+        simulation = generateData()
+        simulation.run()
+
+        # Get data
+        cade_analytics_data = simulation.data
+
+        # Extract data from CSVs and memory
+        orders, products, storage, users = extract_csv_data()
+        requests = extract_memory_data(cade_analytics_data)
+
+        # Convert datetime strings to datetime objects for comparison
+        for order in orders:
+            # 4 : created_at
+            order[4] = datetime.strptime(order[4], '%Y-%m-%d')
+        for req in requests:
+            # 0 : data_notificacao
+            req[0] = datetime.strptime(req[0], '%Y-%m-%d %H:%M:%S')
+
         result_queue = Queue()
 
         processes = [
