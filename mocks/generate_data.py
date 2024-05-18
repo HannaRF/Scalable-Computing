@@ -1,4 +1,5 @@
 from faker import Faker
+from datetime import datetime
 import random
 import pandas as pd
 import numpy as np
@@ -52,18 +53,18 @@ class ContaVerdeMock:
         assert self.number_of_users > 0, "No users available"
         assert self.number_of_storage_items <= self.number_of_products, "Not enough products to store"
 
-        created_at = self.fake.date_this_month().strftime("%Y-%m-%d")
-        paid_at = self.fake.date_between_dates(date_start=pd.to_datetime(created_at, format="%Y-%m-%d")).strftime("%Y-%m-%d")
-        arrived_at = self.fake.date_between(start_date="today", end_date="+30d").strftime("%Y-%m-%d")
+        created_at = self.fake.date_time_between(start_date="-300s", end_date="now")
+        paid_at = self.fake.date_time_between_dates(datetime_start=created_at, datetime_end=datetime.now())
+        arrived_at = self.fake.date_between(start_date="today", end_date="+30d")
 
         return {
             "order_id": self.number_of_orders,
             "user_id": random.randint(1, self.number_of_users),
             "product_id": random.randint(1, self.number_of_products),
             "quantity": random.randint(1, 10),
-            "created_at": created_at,
-            "paid_at": paid_at,
-            "arrived_at": arrived_at
+            "created_at": created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "paid_at": paid_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "arrived_at": arrived_at.strftime("%Y-%m-%d"),
         }
     
     def generate_users_file(self, number_of_users: int) -> None:
@@ -145,7 +146,7 @@ class generateData:
         self.number_of_storage_items = 0
         self.number_of_users = 0
 
-# if __name__ == "__main__":
-#     generateData = generateData()
-#     generateData.run()
-#     print(generateData.data)
+if __name__ == "__main__":
+    generateData = generateData()
+    generateData.run()
+    print(generateData.data)
