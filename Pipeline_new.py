@@ -56,12 +56,11 @@ def calculate_unique_users_per_product_per_minute(requests_df, result_queue):
     for ts, product_id, user_id in zip(timestamps, product_ids, user_ids):
         if ("PRODUTO" in product_id) and (ts > one_minute_ago):
             if product_id not in user_views_per_product:
-                user_views_per_product[product_id] = set()
-            user_views_per_product[product_id].add(user_id)
+                product_id = product_id.split()[2] +' '+ product_id.split()[3]
+                user_views_per_product[product_id] = 0
+            user_views_per_product[product_id] += 1
     
-    # count unique users per product
-    unique_user_views_per_product = {product_id: len(users) for product_id, users in user_views_per_product.items()}
-    result_queue.put(('unique_users_per_product_per_minute', unique_user_views_per_product))
+    result_queue.put(('unique_users_per_product_per_minute', user_views_per_product))
 
 
 def main():
@@ -80,7 +79,7 @@ def main():
         # Convert datetime strings to datetime objects for comparison
         for order in orders:
             # 4 : created_at
-            order[4] = datetime.strptime(order[4], '%Y-%m-%d')
+            order[4] = datetime.strptime(order[4], '%Y-%m-%d %H:%M:%S')
         for req in requests:
             # 0 : data_notificacao
             req[0] = datetime.strptime(req[0], '%Y-%m-%d %H:%M:%S')
@@ -90,7 +89,7 @@ def main():
         processes = [
             Process(target=calculate_products_viewed_per_minute, args=(requests, result_queue)),
             Process(target=calculate_products_bought_per_minute, args=(orders, result_queue)),
-            Process(target=calculate_unique_users_per_product_per_minute, args=(requests, result_queue)),
+            # Process(target=calculate_unique_users_per_product_per_minute, args=(requests, result_queue)),
             # Process(target=calculate_most_bought_products_last_hour, args=(orders, result_queue)),
             # Process(target=calculate_most_viewed_products_last_hour, args=(requests, result_queue)),
             # Process(target=calculate_avg_views_before_purchase, args=(requests, orders, result_queue)),
@@ -115,7 +114,7 @@ def main():
         print(f"DashBoard:")
         print(f"Number of products viewed per minute: {results.get('products_viewed_per_minute')}")
         print(f"Number of products bought per minute: {results.get('products_bought_per_minute')}")
-        print(f"Unique users viewing each product per minute: {results.get('unique_users_per_product_per_minute')}")
+        # print(f"Unique users viewing each product per minute: {results.get('unique_users_per_product_per_minute')}")
         # print(f"Most bought products in the last hour: {results.get('most_bought_products_last_hour')}")
         # print(f"Most viewed products in the last hour: {results.get('most_viewed_products_last_hour')}")
         # print(f"Average number of views before purchase: {results.get('avg_views_before_purchase')}")
