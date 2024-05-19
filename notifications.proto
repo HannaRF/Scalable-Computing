@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package notifications;
+
+message Notification {
+  repeated string data = 1;
+}
+
+message NotificationHeader {
+  repeated string data_header = 1;
+  repeated string data_type = 2;
+}
+
+message NotificationList {
+  repeated Notification notifications = 1;
+}
+
+service NotificationService {
+  rpc SendNotifications (SendNotificationsRequest) returns (Empty);
+}
+
+message SendNotificationsRequest {
+  NotificationList notification_list = 1;
+  NotificationHeader notification_header = 2;
+  int32 id = 3;
+}
+
+message Empty {}
+
+//python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. notifications.proto
