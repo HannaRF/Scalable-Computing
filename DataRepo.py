@@ -58,12 +58,12 @@ class DataRepoDB(DataRepo):
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
         self.data = cursor.fetchall()
+        self.header = [col[0] for col in self.data.description]
         conn.close()
         return self.data
 
     def convert(self):
         # convert data to DataFrame object
-        self.header = [col[0] for col in self.data.description]
         converted_data = {col: [] for col in self.header}
 
         for row in self.data:
@@ -71,6 +71,46 @@ class DataRepoDB(DataRepo):
                 converted_data[col].append(value)
 
         self.data = DataFrame(converted_data)
+
+
+class DataFrameToDB:
+    def __init__(self, path):
+        self.path = path
+        if not os.path.exists(self.path):
+            self._create_database()
+
+    def _create_database(self):
+        """
+        Create a new SQLite database file.
+        """
+        conn = sqlite3.connect(self.path)
+        conn.close()
+
+    def save(self, df, table_name):
+        """
+        Save a DataFrame object to a SQLite database table.
+
+        Args:
+            df (DataFrame): DataFrame object to save.
+            table_name (str): Name of the table where data will be saved.
+        """
+        # Connect to the SQLite database
+        conn = sqlite3.connect(self.path)
+        cursor = conn.cursor()
+
+        # Create table with appropriate columns
+        columns = df.columns
+        columns_def = ", ".join([f"{col} TEXT" for col in columns])
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_def})")
+
+        # Insert data into the table
+        for row in df.values:
+            placeholders = ", ".join(["?" for _ in range(len(columns))])
+            cursor.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", tuple(row))
+
+        # Commit and close the connection
+        conn.commit()
+        conn.close()
 
 class DataRepoMemoria(DataRepo):
     def __init__(self):

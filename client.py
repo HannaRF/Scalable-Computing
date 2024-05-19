@@ -19,7 +19,7 @@ class ClientThread(threading.Thread):
         # Gerando dados
         num_users = random.randint(1, 200)
         num_products = random.randint(1, 200)
-        num_requests = random.randint(1, 200)
+        num_requests = 50#random.randint(1, 200)
 
         cade_analytics = CadeAnalyticsMock(num_users, num_products)
         data = cade_analytics.get_data(num_requests)
@@ -60,11 +60,13 @@ def run_simulation(max_clients, wait_time, index):
         thread.join()
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
         max_clients = int(sys.argv[1])
         wait_time = int(sys.argv[2])  # Especifica em wait_time segundos, a espera entre cada iteração
         index = int(sys.argv[3])
         run_simulation(max_clients, wait_time, index)
     else:
-        run_simulation(20, 2, 0)
+        print("Inicio\n")
+        run_simulation(5, 0, 0)
+        print("Fim")
 
